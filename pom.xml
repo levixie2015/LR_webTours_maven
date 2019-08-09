@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.lw</groupId>
+    <artifactId>LR_chem</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <!-- 文件拷贝时的编码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.6</java.version>
+        <!-- 编译时的编码 -->
+        <!--        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>-->
+        <!--        <maven.compiler.source>1.6</maven.compiler.source>-->
+        <!--        <maven.compiler.target>1.6</maven.compiler.target>-->
+        <!--        <maven.compiler.compilerVersion>1.6</maven.compiler.compilerVersion>-->
+        <selenium_version>2.21.0</selenium_version>
+    </properties>
+
+
+    <dependencies>
+        <!-- selenium-java -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-htmlunit-driver</artifactId>
+            <version>${selenium_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-remote-driver</artifactId>
+            <version>${selenium_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chrome-driver</artifactId>
+            <version>${selenium_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-support</artifactId>
+            <version>${selenium_version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+
+        <plugins>
+            <!--maven-compiler-plugin，用于代码编译  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <!-- 生成的jar中，是否包含pom.xml和pom.properties这两个文件-->
+                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <manifest>
+                            <!-- 是否要把第三方jar放到manifest的classpath中-->
+                            <addClasspath>true</addClasspath>
+                            <!-- 生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/-->
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!-- 应用的main class-->
+                            <mainClass>com.lw.lr.WebTours</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>./</Class-Path>
+                        </manifestEntries>
+                    </archive>
+
+                    <!-- jar包的位置-->
+                    <outputDirectory>${project.build.directory}/</outputDirectory>
+                    <!-- 过滤掉不希望包含在jar中的文件-->
+                    <excludes>
+                        <!--<exclude>**.properties</exclude>-->
+                        <!--<exclude>**.xlsx</exclude>-->
+                    </excludes>
+                    <includes>
+                        <!-- 打jar包时，只打包class文件 -->
+                        <!-- 有时候可能需要一些其他文件，这边可以配置，包括剔除的文件等等-->
+                        <include>**/*.class</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <!-- maven-dependency-plugin，用来拷贝项目所有依赖的插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 拷贝项目依赖包到lib/目录下 -->
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <!-- 间接依赖也拷贝 -->
+                            <excludeTransitive>false</excludeTransitive>
+                            <!-- 带上版本号 -->
+                            <stripVersion>false</stripVersion>
+                        </configuration>
+                    </execution>
+                </executions>
+
+            </plugin>
+
+            <!-- maven-resources-plugin，用来拷贝项目中的一些资源文件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <!-- 一个execution就是一个目标输入位置，如果想把各种资源拆开放的话，就
+                    可以创建多个execution，一个资源文件可以被拷贝多份 -->
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <!-- 资源文件的输出目录  参考：Maven属性（properties）标签的使用-->
+                            <outputDirectory>${project.build.outputDirectory}/config</outputDirectory>
+                            <resources>
+
+                                <!-- 资源文件的原始目录，有多个的话就多配几个 -->
+                                <resource>
+                                    <!-- 原始目录 -->
+                                    <directory>src/main/resources</directory>
+                                    <!-- 是否使用过滤器，如果是的话，需要配置一下才行
+                                    这个后续再研究，这边没有使用到 -->
+                                    <filtering>true</filtering>
+                                    <!-- 包含哪些文件以及去除调哪些文件等等 -->
+                                    <includes>
+                                        <include>**/*.*</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/tempate/*.xlsx</exclude>
+                                        <exclude>**/config/*.properties</exclude>
+                                    </excludes>
+                                </resource>
+
+                                <resource>
+                                    <directory>src/main/config</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/*.properties*</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>src/main/tempate</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/*.xlsx</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.8</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
