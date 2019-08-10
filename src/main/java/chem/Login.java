@@ -8,19 +8,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class Login {
-    public static void main(String[] args) {
-        String httpUrl = "";
-        String userName = "";
-        String password = "";
-        String driverPath = "D:/SoftWare/python3.7.4/chromedriver.exe";// chorme
-
-        WebDriver driver = login(userName, password, httpUrl, driverPath);
-
-        seller(driver);
-
-        driver.quit();
-
-    }
 
     /**
      * 登录
